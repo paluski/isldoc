@@ -195,7 +195,10 @@ export function ProjectDetailPage() {
               description='Ao baixar, o arquivo virá como "nome_REV.ext"'
               required
               value={linkForm.nome_padrao_arquivo}
-              onChange={(e) => setLinkForm((f) => ({ ...f, nome_padrao_arquivo: e.currentTarget.value }))}
+              onChange={(e) => {
+                const value = e.currentTarget.value;
+                setLinkForm((f) => ({ ...f, nome_padrao_arquivo: value }));
+              }}
             />
             <Select
               label="Responsável pelo próximo fluxo"

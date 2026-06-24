@@ -55,6 +55,10 @@ export function AdminDocumentSetsPage() {
     setItems((it) => [...it, { document_type_id: '', nome_padrao_sugerido: '', _localId: crypto.randomUUID() }]);
   }
 
+  function updateTemplateField(field, value) {
+    setTemplate((t) => ({ ...t, [field]: value }));
+  }
+
   function updateItem(index, changes) {
     setItems((it) => it.map((item, i) => (i === index ? { ...item, ...changes } : item)));
   }
@@ -175,12 +179,12 @@ export function AdminDocumentSetsPage() {
               placeholder="ex: Documentos LRCAP 2026 - Armazenamento"
               required
               value={template.name}
-              onChange={(e) => setTemplate((t) => ({ ...t, name: e.currentTarget.value }))}
+              onChange={(e) => updateTemplateField('name', e.currentTarget.value)}
             />
             <Textarea
               label="Descrição"
               value={template.description}
-              onChange={(e) => setTemplate((t) => ({ ...t, description: e.currentTarget.value }))}
+              onChange={(e) => updateTemplateField('description', e.currentTarget.value)}
             />
 
             <Group justify="space-between" mt="sm">

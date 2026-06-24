@@ -8,7 +8,9 @@ import {
   IconChecklist,
   IconSitemap,
   IconFolderCog,
-  IconFileStack
+  IconFileStack,
+  IconFileDescription,
+  IconExternalLink
 } from '@tabler/icons-react';
 import { NavLink as RouterNavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
@@ -73,6 +75,17 @@ export function AppLayout() {
           <Stack gap={6}>
             <Item to="/projects" label="Projetos" icon={<IconFolders size={18} />} />
             <Item to="/approvals" label="Minhas Aprovações" icon={<IconChecklist size={18} />} />
+            <NavLink
+              component="a"
+              href={import.meta.env.VITE_MEMORIAL_GENERATOR_URL || 'http://localhost:3000'}
+              target="_blank"
+              rel="noopener noreferrer"
+              label="Memorial Descritivo"
+              leftSection={<IconFileDescription size={18} />}
+              rightSection={<IconExternalLink size={14} />}
+              variant="light"
+              style={{ borderRadius: 10, fontWeight: 500 }}
+            />
             {isAdmin && (
               <>
                 <Divider label="Administração" labelPosition="center" mt="lg" mb={2} c="dimmed" />

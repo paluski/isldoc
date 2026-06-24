@@ -16,11 +16,6 @@ function App() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
-      <Route path="/debug-projects" element={<ProjectsPage />} />
-      <Route path="/debug-workflows" element={<AdminWorkflowsPage />} />
-      <Route path="/debug-hierarchies" element={<AdminHierarchiesPage />} />
-      <Route path="/debug-document-sets" element={<AdminDocumentSetsPage />} />
-      <Route path="/debug-document-types" element={<AdminDocumentTypesPage />} />
 
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>

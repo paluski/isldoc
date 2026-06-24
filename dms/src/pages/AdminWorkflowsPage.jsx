@@ -52,6 +52,10 @@ export function AdminWorkflowsPage() {
     setModalOpen(true);
   }
 
+  function updateTemplateField(field, value) {
+    setTemplate((t) => ({ ...t, [field]: value }));
+  }
+
   async function openEdit(t) {
     setTemplate({ id: t.id, name: t.name, description: t.description ?? '' });
     const { data, error } = await supabase
@@ -205,12 +209,12 @@ export function AdminWorkflowsPage() {
               label="Nome do fluxo"
               required
               value={template.name}
-              onChange={(e) => setTemplate((t) => ({ ...t, name: e.currentTarget.value }))}
+              onChange={(e) => updateTemplateField('name', e.currentTarget.value)}
             />
             <Textarea
               label="Descrição"
               value={template.description}
-              onChange={(e) => setTemplate((t) => ({ ...t, description: e.currentTarget.value }))}
+              onChange={(e) => updateTemplateField('description', e.currentTarget.value)}
             />
 
             <Group justify="space-between" mt="sm">

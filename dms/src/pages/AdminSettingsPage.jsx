@@ -83,12 +83,18 @@ export function AdminSettingsPage() {
             <TextInput
               label="Número inicial"
               value={String(settings.initial_number)}
-              onChange={(e) => setSettings((s) => ({ ...s, initial_number: parseInt(e.currentTarget.value || '0', 10) }))}
+              onChange={(e) => {
+                const parsed = parseInt(e.currentTarget.value || '0', 10);
+                setSettings((s) => ({ ...s, initial_number: parsed }));
+              }}
             />
             <TextInput
               label="Letra inicial"
               value={settings.initial_letter}
-              onChange={(e) => setSettings((s) => ({ ...s, initial_letter: e.currentTarget.value.toUpperCase() }))}
+              onChange={(e) => {
+                const upper = e.currentTarget.value.toUpperCase();
+                setSettings((s) => ({ ...s, initial_letter: upper }));
+              }}
             />
           </Group>
 

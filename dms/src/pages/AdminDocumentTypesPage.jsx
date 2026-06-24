@@ -38,6 +38,10 @@ export function AdminDocumentTypesPage() {
     setModalOpen(true);
   }
 
+  function updateFormField(field, value) {
+    setForm((f) => ({ ...f, [field]: value }));
+  }
+
   async function handleSave(e) {
     e.preventDefault();
     setSaving(true);
@@ -106,19 +110,19 @@ export function AdminDocumentTypesPage() {
               label="Nome"
               required
               value={form.name}
-              onChange={(e) => setForm((f) => ({ ...f, name: e.currentTarget.value }))}
+              onChange={(e) => updateFormField('name', e.currentTarget.value)}
             />
             <TextInput
               label="Nome da subpasta padrão"
               description="Ex: Anexo1_Requerimento"
               required
               value={form.default_subfolder_name}
-              onChange={(e) => setForm((f) => ({ ...f, default_subfolder_name: e.currentTarget.value }))}
+              onChange={(e) => updateFormField('default_subfolder_name', e.currentTarget.value)}
             />
             <Textarea
               label="Descrição"
               value={form.description ?? ''}
-              onChange={(e) => setForm((f) => ({ ...f, description: e.currentTarget.value }))}
+              onChange={(e) => updateFormField('description', e.currentTarget.value)}
             />
             <Switch
               label="Ativo"

@@ -54,6 +54,10 @@ export function AdminHierarchiesPage() {
     setLevels((l) => [...l, { name: '', _localId: crypto.randomUUID() }]);
   }
 
+  function updateTemplateField(field, value) {
+    setTemplate((t) => ({ ...t, [field]: value }));
+  }
+
   function updateLevel(index, name) {
     setLevels((l) => l.map((lvl, i) => (i === index ? { ...lvl, name } : lvl)));
   }
@@ -184,12 +188,12 @@ export function AdminHierarchiesPage() {
               placeholder="ex: Padrão Engenharia"
               required
               value={template.name}
-              onChange={(e) => setTemplate((t) => ({ ...t, name: e.currentTarget.value }))}
+              onChange={(e) => updateTemplateField('name', e.currentTarget.value)}
             />
             <Textarea
               label="Descrição"
               value={template.description}
-              onChange={(e) => setTemplate((t) => ({ ...t, description: e.currentTarget.value }))}
+              onChange={(e) => updateTemplateField('description', e.currentTarget.value)}
             />
 
             <Group justify="space-between" mt="sm">

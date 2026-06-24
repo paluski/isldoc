@@ -95,7 +95,10 @@ export function MyApprovalsPage() {
               <Textarea
                 placeholder="Comentário (opcional)"
                 value={comments[step.id] || ''}
-                onChange={(e) => setComments((c) => ({ ...c, [step.id]: e.currentTarget.value }))}
+                onChange={(e) => {
+                  const value = e.currentTarget.value;
+                  setComments((c) => ({ ...c, [step.id]: value }));
+                }}
                 minRows={1}
                 autosize
                 mb="xs"
