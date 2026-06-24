@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leilão LRCAP 2026 - Gerenciador de Documentos</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app">
+    <header class="header">
+      <div class="header-content">
+        <h1>🔋 Leilão de Reserva de Capacidade - LRCAP 2026</h1>
+        <p>Gerenciador de Documentos e Memorial Descritivo</p>
+      </div>
+    </header>
+
+    <div class="container">
+      <nav class="nav-tabs">
+        <button class="tab-btn active" data-tab="documentos">📁 Gerenciar Documentos</button>
+        <button class="tab-btn" data-tab="memorial">📝 Editar Memorial Descritivo</button>
+      </nav>
+
+      <!-- TAB 1: Gerenciar Documentos -->
+      <div id="documentos" class="tab-content active">
+        <section class="section">
+          <h2>Novo Projeto ou Selecionar Existente</h2>
+
+          <div class="form-group">
+            <label for="projectList">Projetos Existentes:</label>
+            <select id="projectList">
+              <option value="">-- Selecione um projeto existente --</option>
+            </select>
+          </div>
+
+          <div class="divider">ou</div>
+
+          <div class="form-group">
+            <label for="newProjectName">Criar Novo Projeto:</label>
+            <input type="text" id="newProjectName" placeholder="Nome do empreendimento (ex: SAE-B Xique Xique)" required>
+            <button onclick="createNewProject()" class="btn btn-primary">Criar Projeto</button>
+          </div>
+
+          <div id="currentProject" style="display: none; margin-top: 30px;">
+            <h3>Projeto Selecionado: <strong id="projectNameDisplay"></strong></h3>
+
+            <section class="section">
+              <h3>Upload de Documentos</h3>
+
+              <div class="form-group">
+                <label for="docType">Tipo de Documento:</label>
+                <select id="docType" required>
+                  <option value="">-- Selecione o tipo --</option>
+                  <option value="anexo1">Anexo 1 - Requerimento de Cadastramento</option>
+                  <option value="anexo2">Anexo 2 - Memorial Descritivo</option>
+                  <option value="anexo3">Anexo 3 - Licença</option>
+                  <option value="anexo4">Anexo 4 - Documentos de Acesso e Contratos</option>
+                  <option value="anexo5">Anexo 5 - Ficha de Dados</option>
+                  <option value="anexo6">Anexo 6 - Direito de Uso</option>
+                  <option value="anexo7">Anexo 7 - Declaração</option>
+                  <option value="anexo8">Anexo 8 - Estudos Ambientais</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="fileInput">Selecione o arquivo:</label>
+                <input type="file" id="fileInput" required>
+              </div>
+
+              <button onclick="uploadFile()" class="btn btn-primary">Enviar Documento</button>
+              <div id="uploadStatus" class="status"></div>
+            </section>
+
+            <section class="section">
+              <h3>Documentos do Projeto</h3>
+              <div id="projectStructure" class="project-structure"></div>
+            </section>
+          </div>
+        </section>
+      </div>
+
+      <!-- TAB 2: Editar Memorial -->
+      <div id="memorial" class="tab-content">
+        <section class="section">
+          <h2>Editar Memorial Descritivo</h2>
+          <p class="info">Preencha os campos abaixo. Os dados serão utilizados para gerar o documento Word.</p>
+
+          <form id="memorialForm">
+            <fieldset>
+              <legend>Capa / Dados do Documento</legend>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="revisao">Revisão:</label>
+                  <input type="text" id="revisao" placeholder="ex: 0A">
+                </div>
+                <div class="form-group">
+                  <label for="dataRevisao">Data da Revisão:</label>
+                  <input type="text" id="dataRevisao" placeholder="ex: 17/06/2026">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="descricaoRevisao">Descrição da Revisão:</label>
+                <input type="text" id="descricaoRevisao" placeholder="ex: Emissão inicial">
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="elaboradoPor">Elaborado por (iniciais):</label>
+                  <input type="text" id="elaboradoPor" placeholder="ex: EME">
+                </div>
+                <div class="form-group">
+                  <label for="verificadoPor">Verificado por (iniciais):</label>
+                  <input type="text" id="verificadoPor" placeholder="ex: LHB">
+                </div>
+                <div class="form-group">
+                  <label for="aprovadoPor">Aprovado por (iniciais):</label>
+                  <input type="text" id="aprovadoPor" placeholder="ex: BRB">
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="departamento">Departamento:</label>
+                  <input type="text" id="departamento" placeholder="ex: ENGENHARIA">
+                </div>
+                <div class="form-group">
+                  <label for="contrato">Contrato:</label>
+                  <input type="text" id="contrato" placeholder="ex: ILUMISOL">
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="codigoDocumento">Código do Documento:</label>
+                  <input type="text" id="codigoDocumento" placeholder="ex: ISL-XIQ-SAE-BAT-EXE-GER-MED-001">
+                </div>
+                <div class="form-group">
+                  <label for="dataDocumento">Data do Documento:</label>
+                  <input type="text" id="dataDocumento" placeholder="ex: 02/04/2025">
+                </div>
+              </div>
+              <p class="info">Os campos Projeto e Local da capa são preenchidos automaticamente com o Nome do Empreendimento e Município/Estado informados abaixo.</p>
+            </fieldset>
+
+            <fieldset>
+              <legend>1. Identificação do Empreendimento</legend>
+
+              <h4>1.1 Dados Gerais do Empreendimento</h4>
+
+              <div class="form-group">
+                <label for="nomeEmpreendimento">Nome do Empreendimento:</label>
+                <input type="text" id="nomeEmpreendimento" placeholder="ex: SAE-B Xique Xique" required>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="municipio">Município:</label>
+                  <input type="text" id="municipio" placeholder="ex: Xique-Xique" required>
+                </div>
+                <div class="form-group">
+                  <label for="estado">Estado:</label>
+                  <input type="text" id="estado" placeholder="ex: Bahia" required>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="endereco">Endereço:</label>
+                <input type="text" id="endereco" placeholder="ex: Rua tal, n° 1234" required>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="area">Área (hectares):</label>
+                  <input type="number" id="area" step="0.01" placeholder="ex: 4" required>
+                </div>
+                <div class="form-group">
+                  <label for="potenciaInstalada">Potência Instalada (kW):</label>
+                  <input type="number" id="potenciaInstalada" step="0.01" placeholder="ex: 5000" required>
+                </div>
+              </div>
+
+              <h4>1.2 Tecnologia Adotada</h4>
+
+              <div class="form-group">
+                <label for="descricaoTecnologia">Descrição da Tecnologia:</label>
+                <input type="text" id="descricaoTecnologia" placeholder="ex: Baterias de Lítio (LiFePO4)" required>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="quimicaCatodo">Química do Cátodo:</label>
+                  <input type="text" id="quimicaCatodo" placeholder="ex: LiFePO4" required>
+                </div>
+                <div class="form-group">
+                  <label for="quimicaAnodo">Química do Ânodo:</label>
+                  <input type="text" id="quimicaAnodo" placeholder="ex: Carbono" required>
+                </div>
+              </div>
+
+              <h4>1.3 Dimensionamento do Sistema</h4>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="potenciaNominal">Potência Nominal (kW):</label>
+                  <input type="number" id="potenciaNominal" step="0.01" placeholder="ex: 5000" required>
+                </div>
+                <div class="form-group">
+                  <label for="capacidadeArmazenamento">Capacidade de Armazenamento (kWh):</label>
+                  <input type="number" id="capacidadeArmazenamento" step="0.01" placeholder="ex: 20000" required>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="regimeDescarga">Regime de Descarga:</label>
+                <input type="text" id="regimeDescarga" placeholder="ex: 4 horas" required>
+              </div>
+
+              <div class="form-group">
+                <label for="analiseEnergeticaDetalhada">Detalhamento da Análise Energética (ciclo completo, suprimento à rede, perdas, autoconsumo):</label>
+                <textarea id="analiseEnergeticaDetalhada" rows="3" placeholder="Descreva o ciclo completo de operação..."></textarea>
+              </div>
+
+              <p class="info">Parâmetros de dimensionamento e desempenho:</p>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="eficienciaCargaDescarga">Eficiência de Carga/Descarga (%):</label>
+                  <input type="number" id="eficienciaCargaDescarga" step="0.01" min="0" max="100" placeholder="ex: 92">
+                </div>
+                <div class="form-group">
+                  <label for="limitesDoD">Limites Máx./Mín. da Profundidade de Descarga (DoD Máxima):</label>
+                  <input type="text" id="limitesDoD" placeholder="ex: 10% - 90%">
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="socMinimo">Estado Mínimo de Carga (SOC Mínimo) (%):</label>
+                  <input type="number" id="socMinimo" step="0.01" min="0" max="100" placeholder="ex: 10">
+                </div>
+                <div class="form-group">
+                  <label for="eficienciaPCS">Eficiência dos Conversores (PCS) (%):</label>
+                  <input type="number" id="eficienciaPCS" step="0.01" min="0" max="100" placeholder="ex: 97">
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="consumoInterno">Consumo Interno do Sistema:</label>
+                  <input type="text" id="consumoInterno" placeholder="ex: 1,5% da capacidade">
+                </div>
+                <div class="form-group">
+                  <label for="consumoStandby">Consumo em Stand-by:</label>
+                  <input type="text" id="consumoStandby" placeholder="ex: 5 kW">
+                </div>
+              </div>
+
+              <h4>1.4 Simulação do Perfil Diário Médio Anual do Estado de Carga da Bateria</h4>
+
+              <div class="form-group">
+                <label for="simulacaoPerfilCarga">Simulação considerando os ciclos de carga e descarga durante o período contratual:</label>
+                <textarea id="simulacaoPerfilCarga" rows="3" placeholder="Apresente a simulação..."></textarea>
+              </div>
+
+              <h4>1.5 Estudo de Degradação da Bateria</h4>
+
+              <div class="form-group">
+                <label for="estudoDegradacao">Processo de degradação (nº de ciclos, profundidades de carga/descarga, efeitos de temperatura, etc.):</label>
+                <textarea id="estudoDegradacao" rows="3" placeholder="Detalhe o estudo de degradação..."></textarea>
+              </div>
+
+              <h4>1.6 Estimativa de Eficiência de Carga e Descarga da Bateria (RTE)</h4>
+
+              <div class="form-group">
+                <label for="estimativaEficienciaRTE">Estimativa com referência ao PMI (ciclos, perdas, RTE remanescente mínima projetada, memória de cálculo):</label>
+                <textarea id="estimativaEficienciaRTE" rows="3" placeholder="Descreva a estimativa de eficiência (RTE)..."></textarea>
+              </div>
+
+              <div class="form-group">
+                <label for="areaAbrangenciaRTE">Área de abrangência da RTE / critérios da Portaria de Diretrizes do Leilão:</label>
+                <textarea id="areaAbrangenciaRTE" rows="2" placeholder="Observações sobre a área de abrangência..."></textarea>
+              </div>
+
+              <h4>1.7 Estratégia de "Augmentation"</h4>
+
+              <div class="form-group">
+                <label for="estrategiaAugmentation">Estratégia para manutenção da capacidade contratada e desempenho ao longo da vida útil:</label>
+                <textarea id="estrategiaAugmentation" rows="3" placeholder="Descreva a estratégia..."></textarea>
+              </div>
+
+              <h4>1.9 Catálogo dos Equipamentos</h4>
+
+              <div class="form-group checkbox-group">
+                <label><input type="checkbox" id="catalogoAnexado"> Catálogo dos equipamentos já anexado (Anexo de documentos)</label>
+              </div>
+
+              <h4>1.10 Identificação</h4>
+
+              <div class="form-group">
+                <label for="identificacaoProjetosAssociados">Identificação do(s) projeto(s) de geração associado(s) (quando previsto nas regras do leilão):</label>
+                <textarea id="identificacaoProjetosAssociados" rows="2" placeholder="Identifique o(s) projeto(s) associado(s), se aplicável..."></textarea>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>2. Desenhos de Localização</legend>
+              <h4>2.1 Propriedades Utilizadas</h4>
+
+              <div class="form-group">
+                <label for="numeroMatricula">Número da Matrícula (Registro Geral de Imóveis - RGI):</label>
+                <input type="text" id="numeroMatricula" placeholder="ex: 12.345">
+              </div>
+
+              <div class="form-group checkbox-group">
+                <label><input type="checkbox" id="matriculaAnexada"> Matrícula do imóvel já anexada</label>
+              </div>
+              <div class="form-group checkbox-group">
+                <label><input type="checkbox" id="dwgAnexado"> Arquivo DWG do desenho de localização já anexado</label>
+              </div>
+              <div class="form-group checkbox-group">
+                <label><input type="checkbox" id="imagemLocalizacaoAnexada"> Imagem de localização georreferenciada já inserida</label>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>3. Poligonal da Área Ocupada pelo Empreendimento</legend>
+
+              <p class="info">Coordenadas dos vértices da poligonal, em UTM, vinculadas ao Sistema Geodésico Brasileiro – SIRGAS 2000 (modelo do Anexo IV). O nome do projeto é preenchido automaticamente com o Nome do Empreendimento.</p>
+              <div id="coordenadasTable"></div>
+              <button type="button" onclick="addCoordenadaRow()" class="btn btn-secondary">+ Adicionar Vértice</button>
+
+              <div class="form-group checkbox-group" style="margin-top: 15px;">
+                <label><input type="checkbox" id="planilhaCoordenadasAnexada"> Planilha de coordenadas (Anexo IV) já anexada com o nome do projeto</label>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>4. Informação de Segurança e Prevenção a Incêndio</legend>
+              <h4>4.1 Plano de resposta a emergência</h4>
+
+              <div class="form-group">
+                <label for="planoRespostaEmergenciaDetalhe">O plano contemplará, no mínimo (complemento ao texto fixo de itens já previstos):</label>
+                <textarea id="planoRespostaEmergenciaDetalhe" rows="2" placeholder="Detalhe complementar do plano..."></textarea>
+              </div>
+
+              <div class="form-group">
+                <label for="solucoesMonitoramentoDetalhe">Soluções de monitoramento e proteção adotadas (complemento):</label>
+                <textarea id="solucoesMonitoramentoDetalhe" rows="2" placeholder="Detalhe complementar das soluções..."></textarea>
+              </div>
+
+              <h4>4.2 Procedimentos de operação e manutenção</h4>
+
+              <div class="form-group">
+                <label for="procedimentosManutencaoDetalhe">Os procedimentos contam com (complemento):</label>
+                <textarea id="procedimentosManutencaoDetalhe" rows="2" placeholder="Detalhe complementar dos procedimentos..."></textarea>
+              </div>
+
+              <h4>4.3 Integração com Empreendimentos e Instalações Vizinhas</h4>
+
+              <div class="form-group">
+                <label for="integracaoInstalacoesVizinhasDetalhe">Detalhamento da integração com instalações adjacentes:</label>
+                <textarea id="integracaoInstalacoesVizinhasDetalhe" rows="2" placeholder="Detalhe a integração com instalações vizinhas, se aplicável..."></textarea>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>5. Diagrama Unifilar</legend>
+              <div class="form-group checkbox-group">
+                <label><input type="checkbox" id="diagramaUnifilarAnexado"> Diagrama unifilar já anexado (módulos/racks, PCS, proteção, transformadores, níveis de tensão, barramentos, disjuntores, subestação de conexão, linhas/alimentadores)</label>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>6. Anotação de Responsabilidade Técnica (ART)</legend>
+              <div class="form-group checkbox-group">
+                <label><input type="checkbox" id="artAnexado"> ART já anexada</label>
+              </div>
+            </fieldset>
+
+            <div class="form-actions">
+              <button type="button" onclick="generateMemorial('docx')" class="btn btn-primary btn-large">
+                📥 Baixar Word (.docx)
+              </button>
+              <button type="button" onclick="generateMemorial('pdf')" class="btn btn-primary btn-large">
+                📄 Baixar PDF
+              </button>
+              <button type="reset" class="btn btn-secondary">Limpar Formulário</button>
+            </div>
+          </form>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
