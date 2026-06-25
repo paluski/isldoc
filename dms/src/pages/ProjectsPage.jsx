@@ -23,7 +23,9 @@ import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../auth/AuthContext';
 
 const EMPTY_FORM = {
+  project_code: '',
   name: '',
+  client_name: '',
   municipio: '',
   estado: '',
   endereco: '',
@@ -80,7 +82,9 @@ export function ProjectsPage() {
     e.preventDefault();
     setSaving(true);
     const { error } = await supabase.from('projects').insert({
+      project_code: form.project_code || null,
       name: form.name,
+      client_name: form.client_name || null,
       municipio: form.municipio || null,
       estado: form.estado || null,
       endereco: form.endereco || null,
@@ -133,6 +137,11 @@ export function ProjectsPage() {
                 <Text fw={600}>{p.name}</Text>
                 <Badge color="brand">{p.status}</Badge>
               </Group>
+              {(p.project_code || p.client_name) && (
+                <Text size="xs" c="dimmed" mb={4}>
+                  {[p.project_code, p.client_name].filter(Boolean).join(' · ')}
+                </Text>
+              )}
               <Text size="sm" c="dimmed">
                 {[p.municipio, p.estado].filter(Boolean).join(' - ') || 'Local não informado'}
               </Text>
@@ -149,6 +158,20 @@ export function ProjectsPage() {
       <Modal opened={modalOpen} onClose={() => setModalOpen(false)} title="Novo Projeto" centered>
         <form onSubmit={handleCreate}>
           <Stack>
+            <Group grow>
+              <TextInput
+                label="Código do Projeto"
+                placeholder="ex: SAE-XIQ-001"
+                value={form.project_code}
+                onChange={(e) => updateField('project_code', e.currentTarget.value)}
+              />
+              <TextInput
+                label="Cliente"
+                placeholder="ex: Ilumisol Energia Solar"
+                value={form.client_name}
+                onChange={(e) => updateField('client_name', e.currentTarget.value)}
+              />
+            </Group>
             <TextInput
               label="Nome do Empreendimento"
               placeholder="ex: SAE-B Xique Xique"

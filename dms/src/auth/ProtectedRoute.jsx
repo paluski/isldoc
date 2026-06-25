@@ -18,7 +18,7 @@ export function ProtectedRoute({ adminOnly = false }) {
   }
 
   if (adminOnly && !isAdmin) {
-    return <Navigate to="/projects" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   return <Outlet />;

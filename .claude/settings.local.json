@@ -79,7 +79,8 @@
       "Bash(rm -f debugtest.pdf)",
       "Bash(timeout 20 node -e ' *)",
       "Bash(echo \"exit: $?\")",
-      "Bash(rm -f tc_final.pdf server.log)"
+      "Bash(rm -f tc_final.pdf server.log)",
+      "mcp__Claude_in_Chrome__tabs_context_mcp"
     ]
   }
 }

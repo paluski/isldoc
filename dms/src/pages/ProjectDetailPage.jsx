@@ -19,6 +19,10 @@ import { notifications } from '@mantine/notifications';
 import { supabase } from '../lib/supabaseClient';
 import { DocumentCard } from '../components/DocumentCard';
 import { ProjectConfigPanel } from '../components/ProjectConfigPanel';
+import { ChecklistPanel } from '../components/ChecklistPanel';
+import { NonConformitiesPanel } from '../components/NonConformitiesPanel';
+import { ApplicabilityPanel } from '../components/ApplicabilityPanel';
+import { ReportsPanel } from '../components/ReportsPanel';
 
 export function ProjectDetailPage() {
   const { projectId } = useParams();
@@ -145,9 +149,16 @@ export function ProjectDetailPage() {
 
       <Group justify="space-between">
         <div>
-          <Title order={2}>{project.name}</Title>
+          <Group gap="xs" align="center">
+            <Title order={2}>{project.name}</Title>
+            {project.project_code && (
+              <Text size="sm" c="dimmed" fw={600}>
+                ({project.project_code})
+              </Text>
+            )}
+          </Group>
           <Text c="dimmed" size="sm">
-            {[project.municipio, project.estado].filter(Boolean).join(' - ')}
+            {[project.client_name, [project.municipio, project.estado].filter(Boolean).join(' - ')].filter(Boolean).join(' · ')}
           </Text>
         </div>
         <Button leftSection={<IconPlus size={16} />} onClick={() => setLinkModalOpen(true)}>
@@ -161,6 +172,14 @@ export function ProjectDetailPage() {
         existingDocumentTypeIds={documents.map((d) => d.document_type_id)}
         onChanged={loadAll}
       />
+
+      <ApplicabilityPanel project={project} documents={documents} />
+
+      <ReportsPanel project={project} documents={documents} />
+
+      <ChecklistPanel projectId={projectId} />
+
+      <NonConformitiesPanel projectId={projectId} profiles={profiles} />
 
       {documents.length === 0 ? (
         <Text c="dimmed">Nenhum documento vinculado a este projeto ainda.</Text>

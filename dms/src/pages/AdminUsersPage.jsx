@@ -3,6 +3,7 @@ import { Title, Stack, Table, Select, Loader, Center, Text } from '@mantine/core
 import { notifications } from '@mantine/notifications';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../auth/AuthContext';
+import { ROLE_OPTIONS } from '../lib/roles';
 
 export function AdminUsersPage() {
   const { user: currentUser, refreshProfile } = useAuth();
@@ -63,13 +64,10 @@ export function AdminUsersPage() {
               <Table.Td>{u.full_name || u.id}</Table.Td>
               <Table.Td>
                 <Select
-                  data={[
-                    { value: 'member', label: 'Membro' },
-                    { value: 'admin', label: 'Administrador' }
-                  ]}
+                  data={ROLE_OPTIONS}
                   value={u.role}
                   onChange={(v) => handleRoleChange(u.id, v)}
-                  w={200}
+                  w={220}
                 />
               </Table.Td>
             </Table.Tr>

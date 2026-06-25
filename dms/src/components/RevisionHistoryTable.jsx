@@ -10,7 +10,8 @@ const STATUS_COLORS = {
   em_analise: 'yellow',
   aprovado: 'green',
   reprovado: 'red',
-  emitido: 'brand'
+  emitido: 'brand',
+  finalizado: 'dark'
 };
 
 function fileExtension(fileName) {

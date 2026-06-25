@@ -61,7 +61,7 @@ export function DocumentCard({ doc, profiles, settings, project, onChanged }) {
         </Button>
       </Group>
 
-      {latestRevision && latestRevision.status !== 'emitido' && (
+      {latestRevision && latestRevision.status !== 'finalizado' && (
         <>
           <Divider label="Fluxo de aprovação da revisão atual" labelPosition="left" mb="xs" />
           <ApprovalStepsPanel

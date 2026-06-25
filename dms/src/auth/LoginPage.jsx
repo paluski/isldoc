@@ -17,7 +17,7 @@ export function LoginPage() {
   const [submitting, setSubmitting] = useState(false);
 
   if (!isLoading && user) {
-    return <Navigate to="/projects" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   async function handleSubmit(e) {
@@ -31,7 +31,7 @@ export function LoginPage() {
       if (signInError) {
         setError(signInError.message);
       } else {
-        navigate('/projects');
+        navigate('/dashboard');
       }
     } else {
       const { error: signUpError } = await signUp(email, password, fullName);

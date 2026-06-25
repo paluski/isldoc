@@ -124,3 +124,21 @@ export async function emitRevision({ documentRevisionId, projectDocumentId, curr
 
   return newCode;
 }
+
+/**
+ * Finaliza formalmente o documento: marca a revisão emitida como 'finalizado',
+ * registrando quem encerrou o ciclo e quando. Estado terminal, distinto de 'emitido'.
+ */
+export async function finalizeRevision({ documentRevisionId, projectDocumentId, userId }) {
+  const { error: revisionError } = await supabase
+    .from('document_revisions')
+    .update({ status: 'finalizado', finalized_at: new Date().toISOString(), finalized_by: userId })
+    .eq('id', documentRevisionId);
+  if (revisionError) throw revisionError;
+
+  const { error: docError } = await supabase
+    .from('project_documents')
+    .update({ status: 'finalizado' })
+    .eq('id', projectDocumentId);
+  if (docError) throw docError;
+}

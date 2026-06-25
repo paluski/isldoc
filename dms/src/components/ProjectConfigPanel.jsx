@@ -1,16 +1,20 @@
 import { useEffect, useState } from 'react';
-import { Paper, Title, Select, Group, Button, Stack, Text, Accordion } from '@mantine/core';
+import { Paper, Title, Select, MultiSelect, Group, Button, Stack, Text, Accordion, TextInput } from '@mantine/core';
 import { IconPlaylistAdd } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { supabase } from '../lib/supabaseClient';
+import { useAuth } from '../auth/AuthContext';
 
 export function ProjectConfigPanel({ project, profiles, existingDocumentTypeIds, onChanged }) {
+  const { isAdmin } = useAuth();
   const [workflows, setWorkflows] = useState([]);
   const [hierarchies, setHierarchies] = useState([]);
   const [documentSets, setDocumentSets] = useState([]);
   const [levels, setLevels] = useState([]);
   const [assignments, setAssignments] = useState({});
   const [applyingSet, setApplyingSet] = useState(false);
+  const [clientAccessIds, setClientAccessIds] = useState([]);
+  const clientProfiles = profiles.filter((p) => p.role === 'cliente_externo');
 
   async function loadOptions() {
     const [{ data: w }, { data: h }, { data: s }] = await Promise.all([
@@ -41,8 +45,15 @@ export function ProjectConfigPanel({ project, profiles, existingDocumentTypeIds,
     setAssignments(Object.fromEntries((assignmentsData ?? []).map((a) => [a.hierarchy_template_level_id, a.user_id])));
   }
 
+  async function loadClientAccess() {
+    const { data } = await supabase.from('project_client_access').select('client_user_id').eq('project_id', project.id);
+    setClientAccessIds((data ?? []).map((r) => r.client_user_id));
+  }
+
   useEffect(() => {
     loadOptions();
+    loadClientAccess();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -71,6 +82,33 @@ export function ProjectConfigPanel({ project, profiles, existingDocumentTypeIds,
       return;
     }
     setAssignments((a) => ({ ...a, [levelId]: userId }));
+  }
+
+  async function handleClientAccessChange(newIds) {
+    const added = newIds.filter((id) => !clientAccessIds.includes(id));
+    const removed = clientAccessIds.filter((id) => !newIds.includes(id));
+
+    if (added.length > 0) {
+      const { error } = await supabase
+        .from('project_client_access')
+        .insert(added.map((client_user_id) => ({ project_id: project.id, client_user_id })));
+      if (error) {
+        notifications.show({ color: 'red', message: `Erro ao liberar acesso: ${error.message}` });
+        return;
+      }
+    }
+    if (removed.length > 0) {
+      const { error } = await supabase
+        .from('project_client_access')
+        .delete()
+        .eq('project_id', project.id)
+        .in('client_user_id', removed);
+      if (error) {
+        notifications.show({ color: 'red', message: `Erro ao remover acesso: ${error.message}` });
+        return;
+      }
+    }
+    setClientAccessIds(newIds);
   }
 
   async function handleApplyDocumentSet() {
@@ -123,6 +161,21 @@ export function ProjectConfigPanel({ project, profiles, existingDocumentTypeIds,
           </Accordion.Control>
           <Accordion.Panel>
             <Stack>
+              <Group grow>
+                <TextInput
+                  key={`code-${project.project_code}`}
+                  label="Código do Projeto"
+                  defaultValue={project.project_code || ''}
+                  onBlur={(e) => updateProjectField('project_code', e.currentTarget.value)}
+                />
+                <TextInput
+                  key={`client-${project.client_name}`}
+                  label="Cliente"
+                  defaultValue={project.client_name || ''}
+                  onBlur={(e) => updateProjectField('client_name', e.currentTarget.value)}
+                />
+              </Group>
+
               <Select
                 label="Fluxo de aprovação"
                 clearable
@@ -175,6 +228,20 @@ export function ProjectConfigPanel({ project, profiles, existingDocumentTypeIds,
                   Aplicar Conjunto
                 </Button>
               </Group>
+
+              {isAdmin && (
+                <MultiSelect
+                  label="Acesso de clientes externos"
+                  description="Quem tiver papel 'Cliente Externo' e estiver listado aqui pode ver os documentos emitidos deste projeto"
+                  placeholder={clientProfiles.length === 0 ? 'Nenhum usuário com papel Cliente Externo cadastrado' : 'Selecione clientes'}
+                  data={clientProfiles.map((p) => ({ value: p.id, label: p.full_name || p.id }))}
+                  value={clientAccessIds}
+                  onChange={handleClientAccessChange}
+                  disabled={clientProfiles.length === 0}
+                  searchable
+                  clearable
+                />
+              )}
             </Stack>
           </Accordion.Panel>
         </Accordion.Item>

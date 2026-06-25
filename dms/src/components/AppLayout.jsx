@@ -1,5 +1,6 @@
 import { AppShell, Group, Title, NavLink, Button, Text, Avatar, Stack, Divider, ThemeIcon } from '@mantine/core';
 import {
+  IconLayoutDashboard,
   IconFolders,
   IconFileText,
   IconUsers,
@@ -10,10 +11,13 @@ import {
   IconFolderCog,
   IconFileStack,
   IconFileDescription,
-  IconExternalLink
+  IconExternalLink,
+  IconListCheck,
+  IconHistory
 } from '@tabler/icons-react';
 import { NavLink as RouterNavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import { roleLabel } from '../lib/roles';
 
 function Item({ to, label, icon }) {
   const location = useLocation();
@@ -33,6 +37,7 @@ function Item({ to, label, icon }) {
 
 export function AppLayout() {
   const { profile, user, isAdmin, signOut } = useAuth();
+  const roleText = roleLabel(profile?.role) || (isAdmin ? 'Administrador' : 'Membro');
   const navigate = useNavigate();
 
   async function handleLogout() {
@@ -60,7 +65,7 @@ export function AppLayout() {
                 {profile?.full_name || user?.email}
               </Text>
               <Text size="xs" c="dimmed">
-                {isAdmin ? 'Administrador' : 'Membro'}
+                {roleText}
               </Text>
             </Stack>
             <Avatar color="brand" radius="xl" variant="filled">
@@ -73,6 +78,7 @@ export function AppLayout() {
       <AppShell.Navbar p="md" style={{ borderRight: '1px solid var(--mantine-color-gray-2)' }}>
         <Stack gap="xs" justify="space-between" h="100%">
           <Stack gap={6}>
+            <Item to="/dashboard" label="Dashboard" icon={<IconLayoutDashboard size={18} />} />
             <Item to="/projects" label="Projetos" icon={<IconFolders size={18} />} />
             <Item to="/approvals" label="Minhas Aprovações" icon={<IconChecklist size={18} />} />
             <NavLink
@@ -93,6 +99,8 @@ export function AppLayout() {
                 <Item to="/admin/workflows" label="Fluxos de Aprovação" icon={<IconSitemap size={18} />} />
                 <Item to="/admin/hierarchies" label="Hierarquias" icon={<IconUsers size={18} />} />
                 <Item to="/admin/document-sets" label="Conjuntos de Documentos" icon={<IconFolderCog size={18} />} />
+                <Item to="/admin/checklists" label="Checklists de Auditoria" icon={<IconListCheck size={18} />} />
+                <Item to="/admin/audit-log" label="Log de Auditoria" icon={<IconHistory size={18} />} />
                 <Item to="/admin/settings" label="Numeração de Revisão" icon={<IconAdjustments size={18} />} />
                 <Item to="/admin/users" label="Usuários" icon={<IconUsers size={18} />} />
               </>

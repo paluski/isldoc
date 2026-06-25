@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Stack, Group, Badge, Text, Button, Textarea, Paper, Alert } from '@mantine/core';
-import { IconSend, IconCheck, IconX, IconCertificate } from '@tabler/icons-react';
+import { IconSend, IconCheck, IconX, IconCertificate, IconFlagFilled } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../auth/AuthContext';
-import { instantiateApprovalSteps, decideStep, emitRevision } from '../lib/workflowEngine';
+import { instantiateApprovalSteps, decideStep, emitRevision, finalizeRevision } from '../lib/workflowEngine';
 
 const STATUS_COLORS = { pendente: 'yellow', aprovado: 'green', reprovado: 'red' };
 
@@ -79,6 +79,22 @@ export function ApprovalStepsPanel({ revision, projectDocument, project, setting
       onChanged();
     } catch (err) {
       notifications.show({ color: 'red', message: `Erro ao emitir documento: ${err.message}` });
+    }
+    setBusy(false);
+  }
+
+  async function handleFinalize() {
+    setBusy(true);
+    try {
+      await finalizeRevision({
+        documentRevisionId: revision.id,
+        projectDocumentId: projectDocument.id,
+        userId: user.id
+      });
+      notifications.show({ color: 'green', message: 'Documento finalizado — ciclo encerrado.' });
+      onChanged();
+    } catch (err) {
+      notifications.show({ color: 'red', message: `Erro ao finalizar documento: ${err.message}` });
     }
     setBusy(false);
   }
@@ -162,10 +178,18 @@ export function ApprovalStepsPanel({ revision, projectDocument, project, setting
         </Stack>
       )}
 
-      {!rejected && (revision.status === 'aprovado' || (!hasWorkflow && revision.status !== 'emitido')) && (
+      {!rejected && (revision.status === 'aprovado' || (!hasWorkflow && revision.status !== 'emitido' && revision.status !== 'finalizado')) && (
         <Group justify="flex-end">
           <Button size="xs" color="brand" leftSection={<IconCertificate size={14} />} loading={busy} onClick={handleEmit}>
             Emitir Documento
+          </Button>
+        </Group>
+      )}
+
+      {revision.status === 'emitido' && (
+        <Group justify="flex-end">
+          <Button size="xs" color="dark" leftSection={<IconFlagFilled size={14} />} loading={busy} onClick={handleFinalize}>
+            Finalizar Documento
           </Button>
         </Group>
       )}
