@@ -17,9 +17,21 @@ export function UploadRevisionModal({ opened, onClose, projectDocument, settings
     [projectDocument, settings]
   );
 
+  const ALLOWED_EXTENSIONS = ['pdf', 'docx', 'xlsx', 'dwg', 'dxf', 'png', 'jpg', 'jpeg'];
+  const MAX_SIZE_MB = 50;
+
   async function handleUpload() {
     if (!file) {
       notifications.show({ color: 'red', message: 'Selecione um arquivo.' });
+      return;
+    }
+    const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
+    if (!ALLOWED_EXTENSIONS.includes(ext)) {
+      notifications.show({ color: 'red', message: `Tipo de arquivo não permitido. Use: ${ALLOWED_EXTENSIONS.join(', ')}.` });
+      return;
+    }
+    if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+      notifications.show({ color: 'red', message: `O arquivo excede o limite de ${MAX_SIZE_MB} MB.` });
       return;
     }
     setSaving(true);
@@ -82,8 +94,10 @@ export function UploadRevisionModal({ opened, onClose, projectDocument, settings
 
         <FileInput
           label="Arquivo"
+          description="PDF, DOCX, XLSX, DWG, DXF, PNG, JPG — máx. 50 MB"
           placeholder="Selecione o arquivo"
           leftSection={<IconUpload size={16} />}
+          accept=".pdf,.docx,.xlsx,.dwg,.dxf,.png,.jpg,.jpeg"
           value={file}
           onChange={setFile}
           required

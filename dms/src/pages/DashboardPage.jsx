@@ -12,7 +12,9 @@ import {
   Loader,
   Table,
   Badge,
-  Anchor
+  Anchor,
+  Select,
+  Button
 } from '@mantine/core';
 import {
   IconFolders,
@@ -43,18 +45,31 @@ function StatCard({ icon, label, value, color }) {
   );
 }
 
+const PAGE_SIZE = 5;
+
 export function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState(null);
   const [byResponsible, setByResponsible] = useState([]);
   const [byClient, setByClient] = useState([]);
+  const [dateRange, setDateRange] = useState('all');
+  const [showAllResponsible, setShowAllResponsible] = useState(false);
+  const [showAllClients, setShowAllClients] = useState(false);
 
   useEffect(() => {
     load();
-  }, []);
+  }, [dateRange]);
 
   async function load() {
     setLoading(true);
+
+    const sinceDate = dateRange === '30d'
+      ? new Date(Date.now() - 30 * 86400000).toISOString()
+      : dateRange === '90d'
+      ? new Date(Date.now() - 90 * 86400000).toISOString()
+      : null;
+
+    const withDate = (q) => sinceDate ? q.gte('created_at', sinceDate) : q;
 
     const [
       { data: projects },
@@ -64,10 +79,10 @@ export function DashboardPage() {
       { data: nonConformities }
     ] = await Promise.all([
       supabase.from('projects').select('id, status, client_name, document_set_template_id'),
-      supabase.from('project_documents').select('id, project_id, document_type_id, status, responsible_user_id, profiles(full_name)'),
-      supabase.from('revision_approval_steps').select('id, status'),
-      supabase.from('document_revisions').select('id, status'),
-      supabase.from('non_conformities').select('id, status')
+      withDate(supabase.from('project_documents').select('id, project_id, document_type_id, status, responsible_user_id, profiles(full_name)')),
+      withDate(supabase.from('revision_approval_steps').select('id, status')),
+      withDate(supabase.from('document_revisions').select('id, status')),
+      withDate(supabase.from('non_conformities').select('id, status'))
     ]);
 
     const projectsAtivos = (projects ?? []).filter((p) => p.status === 'ativo').length;
@@ -157,9 +172,25 @@ export function DashboardPage() {
     );
   }
 
+  const visibleResponsible = showAllResponsible ? byResponsible : byResponsible.slice(0, PAGE_SIZE);
+  const visibleClients = showAllClients ? byClient : byClient.slice(0, PAGE_SIZE);
+
   return (
     <Stack>
-      <Title order={2}>Dashboard</Title>
+      <Group justify="space-between">
+        <Title order={2}>Dashboard</Title>
+        <Select
+          w={160}
+          size="xs"
+          data={[
+            { value: 'all', label: 'Todo o período' },
+            { value: '90d', label: 'Últimos 90 dias' },
+            { value: '30d', label: 'Últimos 30 dias' }
+          ]}
+          value={dateRange}
+          onChange={(v) => setDateRange(v ?? 'all')}
+        />
+      </Group>
 
       <SimpleGrid cols={{ base: 1, sm: 2, lg: 5 }}>
         <StatCard
@@ -288,40 +319,47 @@ export function DashboardPage() {
             Nenhum documento com responsável atribuído ainda.
           </Text>
         ) : (
-          <Table verticalSpacing="xs">
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th>Responsável</Table.Th>
-                <Table.Th>Total</Table.Th>
-                <Table.Th>Pendentes</Table.Th>
-                <Table.Th>Em revisão/análise</Table.Th>
-                <Table.Th>Emitidos</Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {byResponsible.map((r) => (
-                <Table.Tr key={r.label}>
-                  <Table.Td>{r.label}</Table.Td>
-                  <Table.Td>{r.total}</Table.Td>
-                  <Table.Td>
-                    <Badge color="gray" variant="light">
-                      {r.pendente}
-                    </Badge>
-                  </Table.Td>
-                  <Table.Td>
-                    <Badge color="yellow" variant="light">
-                      {r.em_revisao}
-                    </Badge>
-                  </Table.Td>
-                  <Table.Td>
-                    <Badge color="green" variant="light">
-                      {r.emitido}
-                    </Badge>
-                  </Table.Td>
+          <>
+            <Table verticalSpacing="xs">
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Th>Responsável</Table.Th>
+                  <Table.Th>Total</Table.Th>
+                  <Table.Th>Pendentes</Table.Th>
+                  <Table.Th>Em revisão/análise</Table.Th>
+                  <Table.Th>Emitidos</Table.Th>
                 </Table.Tr>
-              ))}
-            </Table.Tbody>
-          </Table>
+              </Table.Thead>
+              <Table.Tbody>
+                {visibleResponsible.map((r) => (
+                  <Table.Tr key={r.label}>
+                    <Table.Td>{r.label}</Table.Td>
+                    <Table.Td>{r.total}</Table.Td>
+                    <Table.Td>
+                      <Badge color="gray" variant="light">
+                        {r.pendente}
+                      </Badge>
+                    </Table.Td>
+                    <Table.Td>
+                      <Badge color="yellow" variant="light">
+                        {r.em_revisao}
+                      </Badge>
+                    </Table.Td>
+                    <Table.Td>
+                      <Badge color="green" variant="light">
+                        {r.emitido}
+                      </Badge>
+                    </Table.Td>
+                  </Table.Tr>
+                ))}
+              </Table.Tbody>
+            </Table>
+            {byResponsible.length > PAGE_SIZE && (
+              <Button size="xs" variant="subtle" mt="xs" onClick={() => setShowAllResponsible((v) => !v)}>
+                {showAllResponsible ? 'Ver menos' : `Ver mais (${byResponsible.length - PAGE_SIZE} ocultos)`}
+              </Button>
+            )}
+          </>
         )}
       </Paper>
 
@@ -334,34 +372,41 @@ export function DashboardPage() {
             Nenhum projeto com cliente definido ainda.
           </Text>
         ) : (
-          <Table verticalSpacing="xs">
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th>Cliente</Table.Th>
-                <Table.Th>Total de Projetos</Table.Th>
-                <Table.Th>Ativos</Table.Th>
-                <Table.Th>Concluídos</Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {byClient.map((c) => (
-                <Table.Tr key={c.label}>
-                  <Table.Td>{c.label}</Table.Td>
-                  <Table.Td>{c.total}</Table.Td>
-                  <Table.Td>
-                    <Badge color="brand" variant="light">
-                      {c.ativo}
-                    </Badge>
-                  </Table.Td>
-                  <Table.Td>
-                    <Badge color="green" variant="light">
-                      {c.concluido}
-                    </Badge>
-                  </Table.Td>
+          <>
+            <Table verticalSpacing="xs">
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Th>Cliente</Table.Th>
+                  <Table.Th>Total de Projetos</Table.Th>
+                  <Table.Th>Ativos</Table.Th>
+                  <Table.Th>Concluídos</Table.Th>
                 </Table.Tr>
-              ))}
-            </Table.Tbody>
-          </Table>
+              </Table.Thead>
+              <Table.Tbody>
+                {visibleClients.map((c) => (
+                  <Table.Tr key={c.label}>
+                    <Table.Td>{c.label}</Table.Td>
+                    <Table.Td>{c.total}</Table.Td>
+                    <Table.Td>
+                      <Badge color="brand" variant="light">
+                        {c.ativo}
+                      </Badge>
+                    </Table.Td>
+                    <Table.Td>
+                      <Badge color="green" variant="light">
+                        {c.concluido}
+                      </Badge>
+                    </Table.Td>
+                  </Table.Tr>
+                ))}
+              </Table.Tbody>
+            </Table>
+            {byClient.length > PAGE_SIZE && (
+              <Button size="xs" variant="subtle" mt="xs" onClick={() => setShowAllClients((v) => !v)}>
+                {showAllClients ? 'Ver menos' : `Ver mais (${byClient.length - PAGE_SIZE} ocultos)`}
+              </Button>
+            )}
+          </>
         )}
       </Paper>
 

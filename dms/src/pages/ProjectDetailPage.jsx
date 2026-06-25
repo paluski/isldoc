@@ -205,7 +205,9 @@ export function ProjectDetailPage() {
               label="Tipo de Documento"
               placeholder="Selecione"
               required
-              data={documentTypes.map((t) => ({ value: t.id, label: t.name }))}
+              data={documentTypes
+                .filter((t) => !documents.some((d) => d.document_type_id === t.id))
+                .map((t) => ({ value: t.id, label: t.name }))}
               value={linkForm.document_type_id}
               onChange={handleTypeSelected}
             />

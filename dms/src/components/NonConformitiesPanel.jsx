@@ -120,6 +120,9 @@ export function NonConformitiesPanel({ projectId, profiles }) {
                       <Badge size="xs" color={SEVERITY_COLORS[nc.severity]} variant="light">
                         {nc.severity}
                       </Badge>
+                      {nc.due_date && nc.status !== 'encerrada' && new Date(nc.due_date) < new Date() && (
+                        <Badge size="xs" color="red" variant="filled">Atrasada</Badge>
+                      )}
                     </Group>
                     <Text size="xs" c="dimmed">
                       Responsável: {nc.profiles?.full_name || '—'}

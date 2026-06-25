@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Stack, Group, Badge, Text, Button, Textarea, Paper, Alert } from '@mantine/core';
-import { IconSend, IconCheck, IconX, IconCertificate, IconFlagFilled } from '@tabler/icons-react';
+import { Stack, Group, Badge, Text, Button, Textarea, Paper, Alert, Timeline, ThemeIcon } from '@mantine/core';
+import { IconSend, IconCheck, IconX, IconCertificate, IconFlagFilled, IconClock, IconCircleCheck, IconCircleX } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../auth/AuthContext';
@@ -130,26 +130,31 @@ export function ApprovalStepsPanel({ revision, projectDocument, project, setting
 
       {steps.length > 0 && (
         <Stack gap={6}>
-          {steps.map((s) => (
-            <Paper key={s.id} withBorder p="xs" radius="sm">
-              <Group justify="space-between">
-                <Group gap="xs">
-                  <Badge color={STATUS_COLORS[s.status]} variant="light">
-                    {s.step_order}. {s.name}
-                  </Badge>
-                  <Text size="xs" c="dimmed">
-                    {s.profiles?.full_name || 'Sem aprovador definido'}
-                  </Text>
-                </Group>
-                <Badge color={STATUS_COLORS[s.status]}>{s.status}</Badge>
-              </Group>
-              {s.comment && (
-                <Text size="xs" mt={4} c="dimmed">
-                  "{s.comment}"
-                </Text>
-              )}
-            </Paper>
-          ))}
+          <Timeline active={steps.filter((s) => s.status !== 'pendente').length - 1} bulletSize={26} lineWidth={2}>
+            {steps.map((s) => {
+              const icon = s.status === 'aprovado'
+                ? <IconCircleCheck size={14} />
+                : s.status === 'reprovado'
+                ? <IconCircleX size={14} />
+                : <IconClock size={14} />;
+              const color = STATUS_COLORS[s.status];
+              return (
+                <Timeline.Item
+                  key={s.id}
+                  bullet={<ThemeIcon size={22} radius="xl" color={color} variant="filled">{icon}</ThemeIcon>}
+                  title={
+                    <Group gap="xs">
+                      <Text size="sm" fw={600}>{s.step_order}. {s.name}</Text>
+                      <Badge size="xs" color={color}>{s.status}</Badge>
+                    </Group>
+                  }
+                >
+                  <Text size="xs" c="dimmed">{s.profiles?.full_name || 'Sem aprovador definido'}</Text>
+                  {s.comment && <Text size="xs" c="dimmed" fs="italic">"{s.comment}"</Text>}
+                </Timeline.Item>
+              );
+            })}
+          </Timeline>
 
           {canDecideCurrent && (
             <Paper withBorder p="sm" radius="sm" bg="yellow.0">

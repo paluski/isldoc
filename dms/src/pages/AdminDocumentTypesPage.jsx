@@ -89,7 +89,7 @@ export function AdminDocumentTypesPage() {
         </Table.Thead>
         <Table.Tbody>
           {types.map((t) => (
-            <Table.Tr key={t.id}>
+            <Table.Tr key={t.id} style={!t.is_active ? { opacity: 0.45 } : undefined}>
               <Table.Td>{t.name}</Table.Td>
               <Table.Td>{t.default_subfolder_name}</Table.Td>
               <Table.Td>{t.is_active ? 'Sim' : 'Não'}</Table.Td>

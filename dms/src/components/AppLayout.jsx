@@ -1,4 +1,5 @@
-import { AppShell, Group, Title, NavLink, Button, Text, Avatar, Stack, Divider, ThemeIcon } from '@mantine/core';
+import { AppShell, Group, Title, NavLink, Button, Text, Avatar, Stack, Divider, ThemeIcon, ActionIcon, Tooltip } from '@mantine/core';
+import { useMantineColorScheme, useComputedColorScheme } from '@mantine/core';
 import {
   IconLayoutDashboard,
   IconFolders,
@@ -14,7 +15,9 @@ import {
   IconExternalLink,
   IconListCheck,
   IconHistory,
-  IconBook2
+  IconBook2,
+  IconSun,
+  IconMoon
 } from '@tabler/icons-react';
 import { NavLink as RouterNavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
@@ -40,6 +43,9 @@ export function AppLayout() {
   const { profile, user, isAdmin, signOut } = useAuth();
   const roleText = roleLabel(profile?.role) || (isAdmin ? 'Administrador' : 'Membro');
   const navigate = useNavigate();
+  const { setColorScheme } = useMantineColorScheme();
+  const computedColorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true });
+  const isDark = computedColorScheme === 'dark';
 
   async function handleLogout() {
     await signOut();
@@ -61,6 +67,17 @@ export function AppLayout() {
             </Title>
           </Group>
           <Group gap="sm">
+            <Tooltip label={isDark ? 'Modo claro' : 'Modo escuro'} withArrow>
+              <ActionIcon
+                variant="subtle"
+                color="gray"
+                size="lg"
+                onClick={() => setColorScheme(isDark ? 'light' : 'dark')}
+                aria-label="Alternar tema"
+              >
+                {isDark ? <IconSun size={18} /> : <IconMoon size={18} />}
+              </ActionIcon>
+            </Tooltip>
             <Stack gap={0} align="flex-end">
               <Text size="sm" fw={600}>
                 {profile?.full_name || user?.email}

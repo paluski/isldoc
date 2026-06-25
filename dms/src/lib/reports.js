@@ -100,10 +100,14 @@ export async function downloadDatabookZip(project, documents) {
   indexText += `Gerado em: ${new Date().toLocaleString('pt-BR')}\n\n`;
 
   let includedCount = 0;
+  let skippedCount = 0;
   for (const doc of emitted) {
     const rev = doc.revisions[0];
     const { data, error } = await supabase.storage.from('documents').download(rev.storage_path);
-    if (error) continue;
+    if (error) {
+      skippedCount += 1;
+      continue;
+    }
 
     const ext = rev.file_name.includes('.') ? rev.file_name.slice(rev.file_name.lastIndexOf('.')) : '';
     const fileName = `${doc.nome_padrao_arquivo}_${rev.revision_code}${ext}`;
@@ -128,5 +132,5 @@ export async function downloadDatabookZip(project, documents) {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 
-  return includedCount;
+  return { count: includedCount, skipped: skippedCount };
 }

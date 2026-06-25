@@ -47,6 +47,8 @@ export function ProjectsPage() {
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState(null);
 
   const [form, setForm] = useState(EMPTY_FORM);
 
@@ -108,6 +110,13 @@ export function ProjectsPage() {
     loadAll();
   }
 
+  const filtered = projects.filter((p) => {
+    const q = search.toLowerCase();
+    const matchText = !q || p.name?.toLowerCase().includes(q) || p.project_code?.toLowerCase().includes(q) || p.client_name?.toLowerCase().includes(q);
+    const matchStatus = !statusFilter || p.status === statusFilter;
+    return matchText && matchStatus;
+  });
+
   return (
     <Stack>
       <Group justify="space-between">
@@ -117,15 +126,37 @@ export function ProjectsPage() {
         </Button>
       </Group>
 
+      <Group>
+        <TextInput
+          placeholder="Buscar por nome, código ou cliente..."
+          value={search}
+          onChange={(e) => setSearch(e.currentTarget.value)}
+          style={{ flex: 1 }}
+          clearable
+        />
+        <Select
+          placeholder="Todos os status"
+          clearable
+          data={[
+            { value: 'ativo', label: 'Ativo' },
+            { value: 'concluido', label: 'Concluído' },
+            { value: 'suspenso', label: 'Suspenso' }
+          ]}
+          value={statusFilter}
+          onChange={setStatusFilter}
+          w={180}
+        />
+      </Group>
+
       {loading ? (
         <Center mt="xl">
           <Loader />
         </Center>
-      ) : projects.length === 0 ? (
-        <Text c="dimmed">Nenhum projeto cadastrado ainda.</Text>
+      ) : filtered.length === 0 ? (
+        <Text c="dimmed">{projects.length === 0 ? 'Nenhum projeto cadastrado ainda.' : 'Nenhum projeto encontrado para os filtros aplicados.'}</Text>
       ) : (
         <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }}>
-          {projects.map((p) => (
+          {filtered.map((p) => (
             <Card
               key={p.id}
               className="clickable-card"

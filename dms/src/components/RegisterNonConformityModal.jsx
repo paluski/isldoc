@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Modal, Stack, TextInput, Textarea, Select, Button } from '@mantine/core';
+import { Modal, Stack, TextInput, Textarea, Select, Button, Text } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { notifications } from '@mantine/notifications';
 import { supabase } from '../lib/supabaseClient';
@@ -62,9 +62,22 @@ export function RegisterNonConformityModal({ opened, onClose, projectId, profile
     <Modal opened={opened} onClose={onClose} title="Registrar Não Conformidade" centered>
       <form onSubmit={handleSubmit}>
         <Stack>
-          <TextInput label="Título" required value={title} onChange={(e) => setTitle(e.currentTarget.value)} />
+          <Text size="xs" c="dimmed">Campos marcados com <Text span c="red" fw={700}>*</Text> são obrigatórios.</Text>
+          <TextInput
+            label={<>Título <Text span c="red" fw={700}>*</Text></>}
+            withAsterisk={false}
+            required
+            value={title}
+            onChange={(e) => setTitle(e.currentTarget.value)}
+          />
           <Textarea label="Descrição" value={description} onChange={(e) => setDescription(e.currentTarget.value)} minRows={3} />
-          <Select label="Severidade" data={SEVERITY_OPTIONS} value={severity} onChange={setSeverity} />
+          <Select
+            label={<>Severidade <Text span c="red" fw={700}>*</Text></>}
+            withAsterisk={false}
+            data={SEVERITY_OPTIONS}
+            value={severity}
+            onChange={setSeverity}
+          />
           <Select
             label="Responsável pela tratativa"
             placeholder="Selecione (opcional)"

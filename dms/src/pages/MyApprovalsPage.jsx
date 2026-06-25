@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Title, Stack, Paper, Group, Text, Badge, Button, Textarea, Loader, Center, Anchor } from '@mantine/core';
+import { Title, Stack, Paper, Group, Text, Badge, Button, Textarea, Loader, Center, Anchor, Select } from '@mantine/core';
 import { IconCheck, IconX } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { supabase } from '../lib/supabaseClient';
@@ -13,6 +13,7 @@ export function MyApprovalsPage() {
   const [loading, setLoading] = useState(true);
   const [comments, setComments] = useState({});
   const [busyId, setBusyId] = useState(null);
+  const [projectFilter, setProjectFilter] = useState(null);
 
   async function load() {
     setLoading(true);
@@ -63,14 +64,37 @@ export function MyApprovalsPage() {
     );
   }
 
+  const projectOptions = [...new Map(
+    pending
+      .map((s) => s.document_revisions?.project_documents?.projects)
+      .filter(Boolean)
+      .map((p) => [p.id, p])
+  ).values()].map((p) => ({ value: p.id, label: p.name }));
+
+  const filtered = projectFilter ? pending.filter((s) => s.document_revisions?.project_documents?.projects?.id === projectFilter) : pending;
+
   return (
     <Stack>
-      <Title order={2}>Minhas Aprovações Pendentes</Title>
+      <Group justify="space-between">
+        <Title order={2}>Minhas Aprovações Pendentes</Title>
+        {projectOptions.length > 1 && (
+          <Select
+            placeholder="Filtrar por projeto"
+            clearable
+            data={projectOptions}
+            value={projectFilter}
+            onChange={setProjectFilter}
+            w={260}
+          />
+        )}
+      </Group>
 
       {pending.length === 0 ? (
         <Text c="dimmed">Nenhuma aprovação pendente para você no momento.</Text>
+      ) : filtered.length === 0 ? (
+        <Text c="dimmed">Nenhuma aprovação pendente para o projeto selecionado.</Text>
       ) : (
-        pending.map((step) => {
+        filtered.map((step) => {
           const doc = step.document_revisions?.project_documents;
           return (
             <Paper key={step.id} withBorder p="md" radius="md">
