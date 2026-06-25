@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Paper, Title, Button, Stack, Group, Text, Badge, Accordion, Table } from '@mantine/core';
+import { Paper, Title, Button, Stack, Group, Text, Badge, Accordion, Table, Alert } from '@mantine/core';
+import { IconInfoCircle } from '@tabler/icons-react';
 import { IconClipboardCheck } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { supabase } from '../lib/supabaseClient';
@@ -20,6 +21,7 @@ const RESULT_COLORS = {
 export function ChecklistPanel({ projectId }) {
   const [responses, setResponses] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
+  const [schemaError, setSchemaError] = useState(false);
 
   async function load() {
     const { data, error } = await supabase
@@ -31,6 +33,10 @@ export function ChecklistPanel({ projectId }) {
       .order('performed_at', { ascending: false });
 
     if (error) {
+      if (error.message?.includes('schema cache') || error.message?.includes('checklist_templates')) {
+        setSchemaError(true);
+        return;
+      }
       notifications.show({ color: 'red', message: `Erro ao carregar checklists: ${error.message}` });
       return;
     }
@@ -57,7 +63,12 @@ export function ChecklistPanel({ projectId }) {
         </Button>
       </Group>
 
-      {responses.length === 0 ? (
+      {schemaError ? (
+        <Alert icon={<IconInfoCircle size={16} />} color="yellow" variant="light">
+          A funcionalidade de checklists requer a tabela <strong>checklist_templates</strong> no banco de dados.
+          Execute as migrações pendentes ou recarregue o schema cache no painel do Supabase (Settings → API → Reload Schema Cache).
+        </Alert>
+      ) : responses.length === 0 ? (
         <Text size="sm" c="dimmed">
           Nenhum checklist realizado para este projeto ainda.
         </Text>

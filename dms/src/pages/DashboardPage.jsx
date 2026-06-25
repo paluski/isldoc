@@ -14,7 +14,8 @@ import {
   Badge,
   Anchor,
   Select,
-  Button
+  Button,
+  ThemeIcon
 } from '@mantine/core';
 import {
   IconFolders,
@@ -37,9 +38,9 @@ function StatCard({ icon, label, value, color }) {
             {value}
           </Text>
         </div>
-        <Center w={44} h={44} bg={`${color}.0`} style={{ borderRadius: 12 }}>
+        <ThemeIcon size={44} radius="md" color={color} variant="light">
           {icon}
-        </Center>
+        </ThemeIcon>
       </Group>
     </Paper>
   );

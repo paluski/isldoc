@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Title, Stack, Table, Button, Modal, TextInput, Textarea, Group, ActionIcon, Paper, Checkbox, Badge } from '@mantine/core';
+import { Title, Stack, Table, Button, Modal, TextInput, Textarea, Group, ActionIcon, Paper, Checkbox, Badge, Alert } from '@mantine/core';
+import { IconInfoCircle } from '@tabler/icons-react';
 import { IconPlus, IconEdit, IconTrash, IconArrowUp, IconArrowDown } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { supabase } from '../lib/supabaseClient';
@@ -12,6 +13,7 @@ export function AdminChecklistsPage() {
   const [template, setTemplate] = useState(EMPTY_TEMPLATE);
   const [items, setItems] = useState([]);
   const [saving, setSaving] = useState(false);
+  const [schemaError, setSchemaError] = useState(false);
 
   async function load() {
     const { data, error } = await supabase
@@ -19,6 +21,10 @@ export function AdminChecklistsPage() {
       .select('*, checklist_template_items(count)')
       .order('name');
     if (error) {
+      if (error.message?.includes('schema cache') || error.message?.includes('checklist_template')) {
+        setSchemaError(true);
+        return;
+      }
       notifications.show({ color: 'red', message: `Erro ao carregar checklists: ${error.message}` });
     } else {
       setTemplates(data);
@@ -148,10 +154,17 @@ export function AdminChecklistsPage() {
     <Stack>
       <Group justify="space-between">
         <Title order={2}>Checklists de Auditoria</Title>
-        <Button leftSection={<IconPlus size={16} />} onClick={openCreate}>
+        <Button leftSection={<IconPlus size={16} />} onClick={openCreate} disabled={schemaError}>
           Novo Checklist
         </Button>
       </Group>
+
+      {schemaError && (
+        <Alert icon={<IconInfoCircle size={16} />} color="yellow" title="Tabela não encontrada">
+          As tabelas de checklist (<strong>checklist_templates</strong> e <strong>checklist_template_items</strong>) não foram encontradas no schema cache do Supabase.
+          Acesse o painel do Supabase → Settings → API → <strong>Reload Schema Cache</strong> para resolver, ou execute as migrações do banco de dados.
+        </Alert>
+      )}
 
       <Table withTableBorder withColumnBorders striped highlightOnHover verticalSpacing="sm">
         <Table.Thead>
