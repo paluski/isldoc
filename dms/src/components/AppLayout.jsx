@@ -13,7 +13,8 @@ import {
   IconFileDescription,
   IconExternalLink,
   IconListCheck,
-  IconHistory
+  IconHistory,
+  IconBook2
 } from '@tabler/icons-react';
 import { NavLink as RouterNavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
@@ -81,6 +82,7 @@ export function AppLayout() {
             <Item to="/dashboard" label="Dashboard" icon={<IconLayoutDashboard size={18} />} />
             <Item to="/projects" label="Projetos" icon={<IconFolders size={18} />} />
             <Item to="/approvals" label="Minhas Aprovações" icon={<IconChecklist size={18} />} />
+            <Item to="/help" label="Documentação" icon={<IconBook2 size={18} />} />
             <NavLink
               component="a"
               href={import.meta.env.VITE_MEMORIAL_GENERATOR_URL || 'http://localhost:3000'}

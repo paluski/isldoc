@@ -14,6 +14,7 @@ import { AdminHierarchiesPage } from './pages/AdminHierarchiesPage';
 import { AdminDocumentSetsPage } from './pages/AdminDocumentSetsPage';
 import { AdminChecklistsPage } from './pages/AdminChecklistsPage';
 import { AdminAuditLogPage } from './pages/AdminAuditLogPage';
+import { HelpPage } from './pages/HelpPage';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
           <Route path="/projects" element={<ProjectsPage />} />
           <Route path="/projects/:projectId" element={<ProjectDetailPage />} />
           <Route path="/approvals" element={<MyApprovalsPage />} />
+          <Route path="/help" element={<HelpPage />} />
 
           <Route element={<ProtectedRoute adminOnly />}>
             <Route path="/admin/document-types" element={<AdminDocumentTypesPage />} />
