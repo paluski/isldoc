@@ -1,5 +1,5 @@
 import { AppShell, Group, Title, NavLink, Button, Text, Avatar, Stack, Divider, ThemeIcon, ActionIcon, Tooltip } from '@mantine/core';
-import { useMantineColorScheme, useComputedColorScheme } from '@mantine/core';
+import { useMantineColorScheme } from '@mantine/core';
 import {
   IconLayoutDashboard,
   IconFolders,
@@ -43,9 +43,8 @@ export function AppLayout() {
   const { profile, user, isAdmin, signOut } = useAuth();
   const roleText = roleLabel(profile?.role) || (isAdmin ? 'Administrador' : 'Membro');
   const navigate = useNavigate();
-  const { setColorScheme } = useMantineColorScheme();
-  const computedColorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true });
-  const isDark = computedColorScheme === 'dark';
+  const { colorScheme, setColorScheme } = useMantineColorScheme();
+  const isDark = colorScheme === 'dark';
 
   async function handleLogout() {
     await signOut();
@@ -55,14 +54,14 @@ export function AppLayout() {
   return (
     <AppShell padding="md" navbar={{ width: 272, breakpoint: 'sm' }} header={{ height: 64 }}>
       <AppShell.Header
-        style={{ borderBottom: '1px solid var(--mantine-color-gray-2)', backdropFilter: 'blur(6px)' }}
+        style={{ borderBottom: '1px solid var(--mantine-color-default-border)', backdropFilter: 'blur(6px)' }}
       >
         <Group h="100%" px="lg" justify="space-between">
           <Group gap="sm">
             <ThemeIcon size={34} radius="md" variant="gradient" gradient={{ from: 'brand.6', to: 'brand.4', deg: 135 }}>
               <IconFileStack size={20} />
             </ThemeIcon>
-            <Title order={4} fw={700} c="dark.6">
+            <Title order={4} fw={700}>
               Gestão de Documentos
             </Title>
           </Group>
@@ -93,7 +92,7 @@ export function AppLayout() {
         </Group>
       </AppShell.Header>
 
-      <AppShell.Navbar p="md" style={{ borderRight: '1px solid var(--mantine-color-gray-2)' }}>
+      <AppShell.Navbar p="md" style={{ borderRight: '1px solid var(--mantine-color-default-border)' }}>
         <Stack gap="xs" justify="space-between" h="100%">
           <Stack gap={6}>
             <Item to="/dashboard" label="Dashboard" icon={<IconLayoutDashboard size={18} />} />
