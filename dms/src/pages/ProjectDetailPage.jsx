@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import {
   Title,
   Text,
@@ -10,9 +10,7 @@ import {
   Center,
   Modal,
   Select,
-  TextInput,
-  Breadcrumbs,
-  Anchor
+  TextInput
 } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
@@ -23,9 +21,12 @@ import { ChecklistPanel } from '../components/ChecklistPanel';
 import { NonConformitiesPanel } from '../components/NonConformitiesPanel';
 import { ApplicabilityPanel } from '../components/ApplicabilityPanel';
 import { ReportsPanel } from '../components/ReportsPanel';
+import { usePageMeta } from '../components/layout/PageMetaContext';
+import { pushRecentProject } from '../lib/recentProjects';
 
 export function ProjectDetailPage() {
   const { projectId } = useParams();
+  const { setSegmentLabel } = usePageMeta();
 
   const [project, setProject] = useState(null);
   const [documents, setDocuments] = useState([]);
@@ -56,6 +57,8 @@ export function ProjectDetailPage() {
     }
 
     setProject(projectData);
+    setSegmentLabel(projectId, projectData.name);
+    pushRecentProject(projectData);
     setDocumentTypes(typesData ?? []);
     setProfiles(profilesData ?? []);
     setSettings(settingsData ?? null);
@@ -93,7 +96,7 @@ export function ProjectDetailPage() {
 
     setDocuments((docsData ?? []).map((d) => ({ ...d, revisions: revisionsByDoc[d.id] ?? [] })));
     setLoading(false);
-  }, [projectId]);
+  }, [projectId, setSegmentLabel]);
 
   useEffect(() => {
     loadAll();
@@ -140,13 +143,6 @@ export function ProjectDetailPage() {
 
   return (
     <Stack>
-      <Breadcrumbs>
-        <Anchor component={Link} to="/projects">
-          Projetos
-        </Anchor>
-        <Text>{project.name}</Text>
-      </Breadcrumbs>
-
       <Group justify="space-between">
         <div>
           <Group gap="xs" align="center">
